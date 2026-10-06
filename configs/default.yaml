@@ -1,0 +1,44 @@
+# Default configuration. Every value traces back to docs/decisions.md.
+# Units (D-12): energy and momentum in GeV, length in cm, angles in rad.
+
+seed: 20261006                      # D-11: every run sets and logs its seed
+
+beam:                               # D-01
+  particle: proton
+  momentum_gev: 8.0
+
+pi0:                                # D-02, D-03
+  spectrum: toy                     # Phase 1 only; results use HARP-based spectra
+  energy_min_gev: 0.5
+  energy_max_gev: 5.0
+  energy_bin_gev: 0.25
+
+targets:                            # D-04 (properties from PDG)
+  thickness_fractions_lambda_i: [0.02, 0.05]
+  materials:
+    carbon: { density_g_cm3: 2.21, x0_cm: 19.32, lambda_i_cm: 38.83 }
+    copper: { density_g_cm3: 8.96, x0_cm: 1.436, lambda_i_cm: 15.32 }
+    tin:    { density_g_cm3: 7.31, x0_cm: 1.206, lambda_i_cm: 22.80 }
+
+geometry:                           # D-05
+  distance_cm: 150.0                # target to array face
+  angle_rad: 0.20944                # 12 degrees from the beam axis
+  blocks_per_side: 4
+  block_size_cm: 10.0
+  block_depth_cm: 37.0
+
+detector:                           # D-07
+  resolution_stochastic: 0.063      # sigma_E/E = constant + stochastic/sqrt(E)
+  resolution_constant: 0.0002
+  noise_gev: 0.010
+  threshold_noise_sigmas: 3.0
+  gain_error: 0.0
+
+shower:                             # D-06 (glass type assumed SF57 until BL4S confirms)
+  model: double_gaussian
+  moliere_radius_cm: 2.6
+  # TODO (detector step): core/halo widths and fractions, shape fluctuations
+
+clustering:                         # D-08
+  seed_threshold_gev: 0.100
+  window_blocks: 3
