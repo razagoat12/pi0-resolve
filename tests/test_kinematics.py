@@ -8,6 +8,7 @@ from pi0resolve.kinematics import (
     invariant_mass,
     isotropic_directions,
     opening_angle,
+    rotate_from_z,
 )
 
 SEED = 2026
@@ -28,6 +29,17 @@ def test_isotropic_directions():
     # Each component averages to 0 and <n_z^2> = 1/3 (5-sigma tolerances)
     assert np.all(np.abs(d.mean(axis=0)) < 5.0 / np.sqrt(3.0 * n))
     assert abs(np.mean(d[:, 2] ** 2) - 1.0 / 3.0) < 5.0 * np.sqrt(4.0 / 45.0 / n)
+
+
+def test_rotate_from_z_carries_z_onto_axis_and_preserves_geometry():
+    rng = np.random.default_rng(SEED)
+    for axis in (np.array([0.0, 0.0, 1.0]), np.array([0.0, 1.0, 0.0]),
+                 isotropic_directions(1, rng)[0]):
+        assert np.allclose(rotate_from_z(np.array([[0.0, 0.0, 1.0]]), axis)[0], axis)
+        vectors = isotropic_directions(500, rng) * rng.uniform(0.1, 3.0, 500)[:, None]
+        rotated = rotate_from_z(vectors, axis)
+        assert np.allclose(np.linalg.norm(rotated, axis=1), np.linalg.norm(vectors, axis=1))
+        assert np.allclose(rotated[:-1] @ rotated[1:].T, vectors[:-1] @ vectors[1:].T)
 
 
 def test_four_momentum_has_requested_mass():

@@ -8,7 +8,8 @@ from pi0resolve.config import load_config
 def test_default_config_matches_decisions():
     cfg = load_config()
 
-    assert cfg["beam"] == {"particle": "proton", "momentum_gev": 8.0}  # D-01
+    beam = cfg["beam"]  # D-01, D-15
+    assert beam == {"particle": "proton", "momentum_gev": 8.0, "spot_sigma_cm": 0.5}
 
     pi0 = cfg["pi0"]  # D-03: 0.5-5 GeV in 0.25 GeV bins = 18 bins
     n_bins = (pi0["energy_max_gev"] - pi0["energy_min_gev"]) / pi0["energy_bin_gev"]

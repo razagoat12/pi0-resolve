@@ -29,6 +29,7 @@ This file records every choice that shapes the simulation, **before** results ex
 | D-12 | Software conventions | Proposed |
 | D-13 | π⁰ decay modes | Proposed |
 | D-14 | Other neutral mesons and multiple π⁰s per event | Proposed |
+| D-15 | Generator: sampling modes and production point | Proposed |
 
 ---
 
@@ -489,6 +490,38 @@ Do the same for the hit position on the array (edges behave differently).
 **Decided by / date:** Proposed 2026-10-06, pending team confirmation
 
 **Revisit if:** the contamination check shows multi-particle clusters are common enough to change the Q3 conclusions; then Option B becomes the core study.
+
+---
+
+## D-15 · Generator: sampling modes and production point
+
+**Status:** Proposed (2026-10-06), pending team confirmation
+
+**Questions:** How are π⁰s sampled for the classifier study, and where in the target are they produced?
+
+**Why it matters:** D-11 asks for 10⁵ events per class in every energy bin. A physics spectrum falls steeply with energy, so the high-energy bins, where merging happens, fill very slowly.
+
+**Facts** *(measured with `scripts/check_generator.py`, toy spectrum, 10⁶ π⁰, 5 % λ_I carbon)*
+- 11.7 % of physics-mode π⁰s point at the array.
+- Array hits in the 4.75–5 GeV bin are **62× fewer** than in the 0.5–0.75 GeV bin.
+- 18 % of the π⁰s that hit the array are beyond HARP's forward limit (0.25 rad), which quantifies the gap noted in D-05.
+- BL4S: a focused beam spot is "about 2 cm" across.
+- The beam is attenuated as exp(−s/λ_I) with depth s, so interactions are slightly more likely near the front of the target. This is nearly uniform for 2–5 % λ_I targets.
+
+**Decision**
+- **Coordinates:** z along the beam, target centred at the origin, array centre at *L*·(sin *θ*, 0, cos *θ*).
+- **Two sampling modes:**
+  - `physics`: momenta from the production spectrum around the beam axis (toy now, HARP later; D-02), for Q1 and Q2.
+  - `flat`: energy uniform in 0.5–5 GeV, directions uniform in solid angle inside a cone around the array axis (the array half-diagonal angle plus a 0.10 rad margin), for Q3 and Q4. This deliberately removes the real energy–angle correlation, and the paper must say so.
+- **Toy spectrum (Phase 1 only):** dN/dp ∝ exp(−p / 1.0 GeV); dN/dp_T ∝ p_T exp(−p_T / 0.17 GeV), so ⟨p_T⟩ ≈ 0.34 GeV.
+- **Beam spot:** Gaussian with σ = 0.5 cm in x and y ("about 2 cm" read as ±2σ).
+- **Production depth:** truncated exponential with λ_I, through the full target thickness.
+
+**Rationale (our words):** _______________
+
+**Decided by / date:** Proposed 2026-10-06, pending team confirmation
+
+**Revisit if:** BL4S gives the real beam-spot size; or HARP spectra replace the toy model, after which the energy-imbalance numbers above must be remeasured.
 
 ---
 

@@ -20,6 +20,21 @@ def isotropic_directions(n, rng):
     return np.column_stack((sin_theta * np.cos(phi), sin_theta * np.sin(phi), cos_theta))
 
 
+def rotate_from_z(vectors, axis):
+    """Rotate three-vectors (N, 3) so that the z-axis is carried onto `axis`.
+
+    Builds a right-handed basis (u, v, axis) and maps (x, y, z) to
+    x*u + y*v + z*axis. Lengths and angles between vectors are preserved.
+    """
+    axis = np.asarray(axis, dtype=float)
+    axis = axis / np.linalg.norm(axis)
+    helper = np.array([0.0, 1.0, 0.0]) if abs(axis[1]) < 0.9 else np.array([1.0, 0.0, 0.0])
+    u = np.cross(helper, axis)
+    u /= np.linalg.norm(u)
+    v = np.cross(axis, u)
+    return vectors[:, :1] * u + vectors[:, 1:2] * v + vectors[:, 2:] * axis
+
+
 def four_momentum(energy, direction, mass):
     """Build four-vectors from energy (N,), unit direction (N, 3) and mass.
 

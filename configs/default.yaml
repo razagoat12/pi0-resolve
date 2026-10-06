@@ -3,15 +3,24 @@
 
 seed: 20261006                      # D-11: every run sets and logs its seed
 
-beam:                               # D-01
+# Coordinates (D-15): z along the beam, target centred at the origin,
+# array centre at distance L and angle theta in the x-z plane.
+
+beam:                               # D-01, D-15
   particle: proton
   momentum_gev: 8.0
+  spot_sigma_cm: 0.5                # Gaussian; BL4S "about 2 cm" read as +-2 sigma
 
-pi0:                                # D-02, D-03
+pi0:                                # D-02, D-03, D-15
   spectrum: toy                     # Phase 1 only; results use HARP-based spectra
   energy_min_gev: 0.5
   energy_max_gev: 5.0
   energy_bin_gev: 0.25
+  toy:                              # placeholder physics spectrum, replaced by HARP
+    momentum_slope_gev: 1.0         # dN/dp ~ exp(-p / slope)
+    pt_temperature_gev: 0.17        # dN/dpT ~ pT exp(-pT / T), <pT> = 2T
+  flat:                             # classifier samples: uniform energy, aimed at the array
+    aim_margin_rad: 0.10            # added to the angle subtended by the array half-diagonal
 
 targets:                            # D-04 (properties from PDG)
   thickness_fractions_lambda_i: [0.02, 0.05]
