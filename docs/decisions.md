@@ -31,6 +31,7 @@ This file records every choice that shapes the simulation, **before** results ex
 | D-14 | Other neutral mesons and multiple π⁰s per event | Proposed |
 | D-15 | Generator: sampling modes and production point | Proposed |
 | D-16 | Photon transport: target size, material in the path, conversions | Proposed |
+| D-17 | Detector response details | Proposed |
 
 ---
 
@@ -567,6 +568,38 @@ Pair-conversion probability: 1 − exp(−(7/9) Σ x/X₀). This is the high-ene
 **Decided by / date:** Proposed 2026-10-06, pending team confirmation
 
 **Revisit if:** BL4S confirms a different veto thickness or position, or the target size; or if soft-photon conversion matters enough to need an energy-dependent cross-section.
+
+---
+
+## D-17 · Detector response details
+
+**Status:** Proposed (2026-10-06), pending team confirmation
+
+**Questions:** What exact shower shape, fluctuation size and position effects does the detector model use? (This completes D-06 and D-07.)
+
+**Facts** *(PDG Passage of Particles through Matter, section 33.5)*
+- About 90 % of a shower's energy lies within 1 R_M and about 99 % within 3.5 R_M. Lateral profiles are "often represented as the sum of two Gaussians".
+- The longitudinal profile is a gamma distribution with b ≈ 0.5. A photon shower peaks at t_max = ln(E/E_c) **+ 0.5** radiation lengths (−0.5 is for electrons).
+- SF57 lead glass: X₀ ≈ 1.55 cm, E_c ≈ 12 MeV, R_M ≈ 2.6 cm *(EIC Yellow Report)*.
+- Photons strike the array up to about 11° from head-on.
+
+**Decision**
+- **Shape:** two Gaussians fixed by the PDG containment numbers. Core width 0.3 R_M (assumed); the halo fraction and width are solved from the two containment conditions. The result is an 87.7 % core with σ = 0.78 cm and a 12.3 % halo with σ = 4.06 cm. It reproduces 99 % at 3.5 R_M exactly and 89.6 % at 1 R_M, because the core is treated as fully inside 1 R_M.
+- **Fluctuations:** per photon, both widths are scaled log-normally with a 10 % spread, and the core fraction varies by ±3 % (Gaussian). Robustness scan: 0 % to 20 %.
+- **Oblique incidence:** the shower centre is shifted along the photon direction to the energy-centroid depth X₀·(ln(E/E_c) + 0.5 + 2), about 10.7 cm at 1 GeV.
+- **Energy:** σ_E/E = 0.02 % + 6.3 %/√E, applied to each photon's energy (linear sum, as quoted by BL4S).
+- **Readout order:** deposits → fixed per-block gains → 10 MeV Gaussian noise → zero any block below 30 MeV. Blocks are treated as contiguous (no gaps); energy outside the 40 cm face is lost.
+
+**Results** *(scripts/check_detector.py)*
+- At the array centre, 1 GeV photons give a summed response of 0.997 ± 0.066. At u = 18 cm, 0.787: 21 % leaks off the edge.
+- Accepted π⁰s (both photons enter the face unconverted) record **87.8 %** of their energy on average, but **98.7 %** when both shower centres are within 10 cm of the middle. A photon entering just inside an edge can have its shower centre outside the array. **Phase 2 needs a fiducial cut.**
+- Energy-weighted centroids are strongly pulled toward block centres (the "S-curve"), so position reconstruction needs a correction. This is the position-bias problem anticipated in Q1.
+
+**Rationale (our words):** _______________
+
+**Decided by / date:** Proposed 2026-10-06, pending team confirmation
+
+**Revisit if:** BL4S confirms a different glass type; or a Geant4 shower sample becomes available to replace the parameterisation.
 
 ---
 

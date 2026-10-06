@@ -137,7 +137,7 @@ pi0-resolve/
 ## Getting started
 
 > [!NOTE]
-> The code is under active development. Setup, the decay module and its tests work today; the other commands describe the planned interface.
+> The code is under active development. The full Phase 1 simulation (generator → decay → transport → detector) and its checks work today; the other commands describe the planned interface.
 
 ```bash
 git clone https://github.com/<your-org>/pi0-resolve.git
@@ -152,6 +152,7 @@ pytest                                                    # run validation check
 python scripts/check_decay.py                             # decay kinematics figure
 python scripts/check_generator.py                         # generator figure
 python scripts/check_transport.py                         # transport figure + conversion-loss table
+python scripts/check_detector.py                          # end-to-end Phase 1 check
 python scripts/simulate.py --config configs/default.yaml  # generate events
 python scripts/train.py    --config configs/default.yaml  # train and evaluate classifiers
 python scripts/figures.py                                 # rebuild every figure
@@ -166,14 +167,15 @@ Every stage must pass its checks before the next one builds on it:
 - [x] Dalitz decays (π⁰ → e⁺e⁻γ) are tagged at the PDG rate of 1.174 %
 - [x] Generator: production depth follows beam attenuation; toy spectra, beam spot and flat-mode cone match their input distributions
 - [x] Transport: photons land where straight-line geometry predicts; path lengths add up; conversion rate matches 1 − exp(−7x/9X₀) in carbon, copper and tin
-- [ ] With smearing switched off, the reconstructed mass equals the true mass
+- [x] Detector: shower shape reproduces PDG containment (90 % in 1 R_M, 99 % in 3.5 R_M); energy conserved away from edges; resolution, noise, threshold and gains as configured
+- [ ] With smearing switched off, the reconstructed mass equals the true mass (Phase 2: reconstruction)
 - [ ] Single-γ and merged-π⁰ energy spectra overlap after matching
 - [ ] Training and test scores agree (no overfitting)
 
 ## Roadmap
 
 - [ ] **Phase 0:** freeze the research question, hypotheses and decision log
-- [ ] **Phase 1:** core simulation (generator → detector) passing all checks
+- [x] **Phase 1:** core simulation (generator → detector) passing all checks
 - [ ] **Phase 2:** feasibility study: acceptance vs *L*/*θ*, mass resolution, target conversion
 - [ ] **Phase 3:** classifiers: baseline cut, LR, BDT, MLP; ROC and AUC vs energy
 - [ ] **Phase 4:** robustness: alternative shower models, gain errors, noise

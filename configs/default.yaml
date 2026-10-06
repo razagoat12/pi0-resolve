@@ -49,10 +49,16 @@ detector:                           # D-07
   threshold_noise_sigmas: 3.0
   gain_error: 0.0
 
-shower:                             # D-06 (glass type assumed SF57 until BL4S confirms)
+shower:                             # D-06, D-17 (glass assumed SF57 until BL4S confirms)
   model: double_gaussian
-  moliere_radius_cm: 2.6
-  # TODO (detector step): core/halo widths and fractions, shape fluctuations
+  moliere_radius_cm: 2.6            # SF57, EIC Yellow Report table 11.33
+  containment_1rm: 0.90             # PDG: 90 % of the energy within 1 R_M
+  containment_3p5rm: 0.99           # PDG: 99 % within 3.5 R_M
+  core_sigma_rm: 0.3                # narrow-core width in units of R_M (assumed)
+  width_fluctuation: 0.10           # per-photon log-normal spread of both widths
+  core_fraction_fluctuation: 0.03   # per-photon Gaussian spread of the core fraction
+  glass_x0_cm: 1.55                 # SF57, for the shower depth
+  critical_energy_gev: 0.012        # SF57, for the shower depth
 
 clustering:                         # D-08
   seed_threshold_gev: 0.100
