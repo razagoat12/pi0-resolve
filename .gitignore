@@ -1,0 +1,15 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+
+# Environments
+.venv/
+
+# Tools
+.pytest_cache/
+
+# Generated event files (D-12): regenerate from configs, never commit
+data/

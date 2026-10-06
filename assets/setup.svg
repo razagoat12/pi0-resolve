@@ -1,0 +1,130 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="440" viewBox="0 0 1200 440" role="img" aria-labelledby="t d">
+  <title id="t">Simulated experimental setup</title>
+  <desc id="d">Side view: a 6 GeV/c hadron beam passes scintillators and Cherenkov counters, hits a carbon or copper target, and continues to the dump. A neutral pion made in the target decays to two photons that reach a 4×4 lead-glass array placed at distance L and angle theta, off the beam axis.</desc>
+  <defs>
+    <pattern id="dots" width="24" height="24" patternUnits="userSpaceOnUse">
+      <circle cx="2" cy="2" r="1" fill="#C9D4F0" opacity="0.06"/>
+    </pattern>
+    <linearGradient id="beamIn" gradientUnits="userSpaceOnUse" x1="30" y1="0" x2="462" y2="0">
+      <stop offset="0" stop-color="#AEB9D3" stop-opacity="0.15"/>
+      <stop offset="1" stop-color="#AEB9D3" stop-opacity="0.95"/>
+    </linearGradient>
+    <linearGradient id="beamOut" gradientUnits="userSpaceOnUse" x1="478" y1="0" x2="1160" y2="0">
+      <stop offset="0" stop-color="#AEB9D3" stop-opacity="0.6"/>
+      <stop offset="1" stop-color="#AEB9D3" stop-opacity="0.12"/>
+    </linearGradient>
+    <linearGradient id="glass" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#2A3D75"/>
+      <stop offset="1" stop-color="#18234A"/>
+    </linearGradient>
+    <linearGradient id="shower" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#FFD166"/>
+      <stop offset="0.45" stop-color="#F76B15"/>
+      <stop offset="1" stop-color="#3B1F5E"/>
+    </linearGradient>
+    <linearGradient id="targetGrad" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#5B6788"/>
+      <stop offset="1" stop-color="#A3AECB"/>
+    </linearGradient>
+    <filter id="soft" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="4"/>
+    </filter>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#5F6B8A"/>
+    </marker>
+  </defs>
+
+  <style>
+    .sans { font-family: 'Segoe UI', Inter, -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif; }
+    .mono { font-family: 'JetBrains Mono', 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace; }
+    .lbl  { font-size: 12px; fill: #8A97B4; }
+    .photon { stroke-dasharray: 3 9; animation: flow 1.6s linear infinite; }
+    .beam   { stroke-dasharray: 10 8; animation: flow 1.2s linear infinite; }
+    @keyframes flow { to { stroke-dashoffset: -24; } }
+    @media (prefers-reduced-motion: reduce) { .photon, .beam { animation: none; } }
+  </style>
+
+  <!-- card -->
+  <rect x="0.5" y="0.5" width="1199" height="439" rx="16" fill="#0C1226" stroke="#1F2A4A"/>
+  <rect x="0.5" y="0.5" width="1199" height="439" rx="16" fill="url(#dots)"/>
+
+  <text x="40" y="48" class="mono" font-size="12" letter-spacing="3" fill="#4CC9F0">EXPERIMENTAL SETUP · SIDE VIEW</text>
+  <text x="40" y="76" class="sans" font-size="20" font-weight="600" fill="#E6EDF7">Calorimeter placed off-axis, so the beam misses it</text>
+
+  <!-- beam -->
+  <line x1="30" y1="250" x2="462" y2="250" stroke="url(#beamIn)" stroke-width="3" class="beam"/>
+  <line x1="478" y1="250" x2="1158" y2="250" stroke="url(#beamOut)" stroke-width="2" class="beam" marker-end="url(#arrow)"/>
+  <text x="34" y="236" class="mono lbl">6 GeV/c  π⁺ / p</text>
+  <text x="1160" y="276" text-anchor="end" class="mono lbl">non-interacting beam → dump</text>
+
+  <!-- upstream instrumentation -->
+  <rect x="96" y="222" width="8" height="56" rx="2" fill="#2C6E8F"/>
+  <rect x="140" y="233" width="80" height="34" rx="17" fill="#17254A" stroke="#4CC9F0" stroke-opacity="0.45"/>
+  <rect x="232" y="233" width="80" height="34" rx="17" fill="#17254A" stroke="#4CC9F0" stroke-opacity="0.45"/>
+  <rect x="340" y="222" width="8" height="56" rx="2" fill="#2C6E8F"/>
+  <text x="100" y="300" text-anchor="middle" class="mono lbl">S1</text>
+  <text x="226" y="300" text-anchor="middle" class="mono lbl">Cherenkov ×2 (tag π / p)</text>
+  <text x="344" y="300" text-anchor="middle" class="mono lbl">S2</text>
+
+  <!-- target -->
+  <rect x="462" y="222" width="16" height="56" rx="2" fill="url(#targetGrad)"/>
+  <text x="470" y="300" text-anchor="middle" class="mono lbl">target</text>
+  <text x="470" y="316" text-anchor="middle" class="mono" font-size="11" fill="#5F6B8A">C or Cu</text>
+
+  <!-- L and theta -->
+  <line x1="470" y1="250" x2="875.7" y2="141.3" stroke="#5F6B8A" stroke-width="1" stroke-dasharray="4 5"/>
+  <text x="650" y="178" class="sans" font-size="17" font-style="italic" fill="#C9D4F0">L</text>
+  <path d="M560 250 A90 90 0 0 0 556.9 226.7" fill="none" stroke="#FFD166" stroke-width="1.5"/>
+  <text x="572" y="244" class="sans" font-size="16" font-style="italic" fill="#FFD166">θ</text>
+
+  <!-- pi0 + photons -->
+  <circle cx="482" cy="246" r="9" fill="#F72585" opacity="0.5" filter="url(#soft)"/>
+  <circle cx="482" cy="246" r="3.5" fill="#FF6FB5"/>
+  <text x="488" y="234" class="sans" font-size="14" font-weight="600" fill="#FF8CC6">π⁰</text>
+  <line x1="482" y1="246" x2="862.7" y2="93.0" stroke="#4CC9F0" stroke-width="6" opacity="0.18" filter="url(#soft)"/>
+  <line x1="482" y1="246" x2="884.8" y2="175.1" stroke="#4CC9F0" stroke-width="6" opacity="0.18" filter="url(#soft)"/>
+  <line x1="482" y1="246" x2="862.7" y2="93.0" stroke="#8FDDF7" stroke-width="2" stroke-linecap="round" class="photon"/>
+  <line x1="482" y1="246" x2="884.8" y2="175.1" stroke="#8FDDF7" stroke-width="2" stroke-linecap="round" class="photon"/>
+  <text x="700" y="140" class="sans" font-size="15" font-style="italic" fill="#8FDDF7">γ</text>
+  <text x="724" y="222" class="sans" font-size="15" font-style="italic" fill="#8FDDF7">γ</text>
+
+  <!-- calorimeter (rotated to face the target) -->
+  <g transform="translate(875.7 141.3) rotate(-15)">
+    <rect x="-17" y="-84" width="6" height="168" rx="2" fill="#4CC9F0" fill-opacity="0.45"/>
+    <rect x="0" y="-80" width="100" height="38" rx="3" fill="url(#shower)"/>
+    <rect x="0" y="-40" width="100" height="38" rx="3" fill="url(#glass)"/>
+    <rect x="0" y="0"   width="100" height="38" rx="3" fill="url(#shower)" opacity="0.85"/>
+    <rect x="0" y="40"  width="100" height="38" rx="3" fill="url(#glass)"/>
+    <g fill="#4A5578">
+      <rect x="100" y="-70" width="18" height="18" rx="2"/>
+      <rect x="100" y="-30" width="18" height="18" rx="2"/>
+      <rect x="100" y="10"  width="18" height="18" rx="2"/>
+      <rect x="100" y="50"  width="18" height="18" rx="2"/>
+    </g>
+    <rect x="0" y="-80" width="100" height="158" rx="3" fill="none" stroke="#3A4C86"/>
+  </g>
+  <circle cx="862.7" cy="93.0" r="2.6" fill="#FFFFFF"/>
+  <circle cx="884.8" cy="175.1" r="2.6" fill="#FFFFFF"/>
+
+  <!-- calorimeter labels -->
+  <line x1="1014" y1="120" x2="1046" y2="120" stroke="#3A4870"/>
+  <text x="1052" y="116" class="sans" font-size="14" font-weight="600" fill="#E6EDF7">lead-glass array</text>
+  <text x="1052" y="134" class="mono lbl">4 × 4 blocks + PMTs</text>
+  <line x1="845" y1="60" x2="812" y2="60" stroke="#3A4870"/>
+  <text x="806" y="64" text-anchor="end" class="mono lbl">charged veto</text>
+
+  <!-- spec cards -->
+  <g>
+    <rect x="40" y="340" width="362" height="76" rx="12" fill="#121A33" stroke="#24305A"/>
+    <text x="60" y="372" class="mono" font-size="19" font-weight="700" fill="#FFD166">16 × lead glass</text>
+    <text x="60" y="397" class="sans" font-size="13" fill="#8A97B4">10 × 10 × 37 cm blocks in a 4 × 4 array</text>
+
+    <rect x="419" y="340" width="362" height="76" rx="12" fill="#121A33" stroke="#24305A"/>
+    <text x="439" y="372" class="mono" font-size="19" font-weight="700" fill="#8FDDF7">σ<tspan font-size="13" dy="4">E</tspan><tspan dy="-4">/E ≈ 6.3% / √E</tspan></text>
+    <text x="439" y="397" class="sans" font-size="13" fill="#8A97B4">energy resolution, E in GeV (BL4S 2026 spec)</text>
+
+    <rect x="798" y="340" width="362" height="76" rx="12" fill="#121A33" stroke="#24305A"/>
+    <text x="818" y="372" class="mono" font-size="19" font-weight="700" fill="#FF8CC6">θ<tspan font-size="13" dy="4">min</tspan><tspan dy="-4"> ≈ 2m</tspan><tspan font-size="13" dy="4">π⁰</tspan><tspan dy="-4"> / E</tspan></text>
+    <text x="818" y="397" class="sans" font-size="13" fill="#8A97B4">faster π⁰ → photons land closer together</text>
+  </g>
+</svg>
