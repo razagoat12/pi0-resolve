@@ -14,27 +14,12 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from pi0resolve.config import load_config
-from pi0resolve.generator import array_axis, generate_pi0s
-from pi0resolve.kinematics import rotate_from_z
+from pi0resolve.generator import generate_pi0s
+from pi0resolve.transport import transport_photons
 
 N_EVENTS = 1_000_000
 HARP_FORWARD_LIMIT_RAD = 0.25
 OUTPUT = Path(__file__).resolve().parents[1] / "figures" / "generator_checks.png"
-
-
-def points_at_array(direction, cfg):
-    """Rough check from the target centre (transport will do this exactly)."""
-    g = cfg["geometry"]
-    axis = array_axis(cfg)
-    half = 0.5 * g["blocks_per_side"] * g["block_size_cm"]
-    along = direction @ axis
-    ok = along > 0
-    hit = np.zeros(len(direction), dtype=bool)
-    point = g["distance_cm"] * direction[ok] / along[ok, None]   # on the array plane
-    u = rotate_from_z(np.array([[1.0, 0.0, 0.0]]), axis)[0]
-    v = rotate_from_z(np.array([[0.0, 1.0, 0.0]]), axis)[0]
-    hit[ok] = (np.abs(point @ u) <= half) & (np.abs(point @ v) <= half)
-    return hit
 
 
 def main():
@@ -45,7 +30,8 @@ def main():
 
     direction = physics.p4[:, 1:] / np.linalg.norm(physics.p4[:, 1:], axis=1)[:, None]
     polar = np.degrees(np.arccos(direction[:, 2]))
-    hits = points_at_array(direction, cfg)
+    # Only the direction and production point matter for "does it point at the array"
+    hits = transport_photons(physics.p4, physics.vertex, rng, cfg, "carbon", 0.05).on_array
     print(f"physics-mode π⁰s pointing at the array: {hits.mean():.3%}")
 
     g = cfg["geometry"]

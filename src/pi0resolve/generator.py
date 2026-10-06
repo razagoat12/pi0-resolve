@@ -60,6 +60,7 @@ def generate_pi0s(n, rng, cfg, material, thickness_fraction, mode="physics"):
         thickness_cm=thickness_fraction * target["lambda_i_cm"],
         lambda_i_cm=target["lambda_i_cm"],
         spot_sigma_cm=cfg["beam"]["spot_sigma_cm"],
+        half_width_cm=0.5 * cfg["targets"]["transverse_size_cm"],
     )
     return Pi0Sample(four_momentum(energy, direction, PI0_MASS), vertex, is_dalitz(n, rng))
 
@@ -99,14 +100,20 @@ def cone_directions(n, rng, axis, half_angle):
     return rotate_from_z(local, axis)
 
 
-def sample_vertices(n, rng, thickness_cm, lambda_i_cm, spot_sigma_cm):
+def sample_vertices(n, rng, thickness_cm, lambda_i_cm, spot_sigma_cm, half_width_cm):
     """Production points inside the target.
 
-    x, y: Gaussian beam spot. z: the beam is attenuated as exp(-s / λ_I) with
-    depth s, so interactions follow that law truncated to [0, t] (inverse CDF),
-    then shifted so the target is centred on z = 0.
+    x, y: Gaussian beam spot, redrawn where it falls outside the target face
+    (beam particles that miss the target cannot interact in it).
+    z: the beam is attenuated as exp(-s / λ_I) with depth s, so interactions
+    follow that law truncated to [0, t] (inverse CDF), then shifted so the
+    target is centred on z = 0.
     """
     xy = rng.normal(0.0, spot_sigma_cm, (n, 2))
+    outside = np.any(np.abs(xy) > half_width_cm, axis=1)
+    while np.any(outside):
+        xy[outside] = rng.normal(0.0, spot_sigma_cm, (np.count_nonzero(outside), 2))
+        outside = np.any(np.abs(xy) > half_width_cm, axis=1)
     # Inverse CDF; interacting = 1 - exp(-t / λ_I), the interaction probability
     interacting = -np.expm1(-thickness_cm / lambda_i_cm)
     depth = -lambda_i_cm * np.log1p(-rng.random(n) * interacting)

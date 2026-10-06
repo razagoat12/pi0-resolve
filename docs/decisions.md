@@ -30,6 +30,7 @@ This file records every choice that shapes the simulation, **before** results ex
 | D-13 | π⁰ decay modes | Proposed |
 | D-14 | Other neutral mesons and multiple π⁰s per event | Proposed |
 | D-15 | Generator: sampling modes and production point | Proposed |
+| D-16 | Photon transport: target size, material in the path, conversions | Proposed |
 
 ---
 
@@ -525,6 +526,50 @@ Do the same for the hit position on the array (edges behave differently).
 
 ---
 
+## D-16 · Photon transport: target size, material in the path, conversions
+
+**Status:** Proposed (2026-10-06), pending team confirmation
+
+**Questions:** How large is the target sideways, which materials does a photon cross on its way to the array, and what happens when a photon converts?
+
+**Why it matters:** Any material converts photons into e⁺e⁻ pairs, not only the target. A conversion close to the array also fires the charged veto.
+
+**Facts** *(PDG radiation lengths)*
+
+| Material in the path | X₀ | Typical path | Conversion per photon |
+|---|---|---|---|
+| Air (1 atm) | 30 390 cm | about 1.5 m | about 0.4 % |
+| Plastic scintillator veto (PVT) | 42.54 cm | 1 cm | about 1.8 % |
+
+Pair-conversion probability: 1 − exp(−(7/9) Σ x/X₀). This is the high-energy limit; for photons of a few hundred MeV the true value is somewhat lower, so soft-photon losses are slightly overestimated.
+
+**Decision**
+- **Target:** 5 × 5 cm face (covers the beam spot to ±5σ). Photons may leave through the back face or a side, whichever comes first.
+- **Path:** target (to its exit) → air → a **1 cm plastic veto** directly in front of the array. The path length through the veto grows as 1/cos(incidence angle).
+- **Conversions:** a converted photon whose path still reaches the array **vetoes the whole event**, because its e⁺e⁻ pair fires the veto. A converted photon that misses the array is simply lost.
+- **Accepted event:** not a Dalitz decay, not vetoed, and both photons reach the array unconverted.
+
+**Results** *(scripts/check_transport.py, L = 1.5 m, θ = 12°)*
+- No π⁰ below about 1.2 GeV has both photons on the array; even at 5 GeV, about 17 % of π⁰s aimed at the array are fully on it.
+- About 1.6 % of physics-mode (toy) π⁰s are fully accepted; hits crowd the beam-side edge of the array.
+- π⁰ lost to conversion, for π⁰s whose photons both reach the array:
+
+| Target | 2 % λ_I | 5 % λ_I |
+|---|---|---|
+| Carbon | 7.5 % | 11.5 % |
+| Copper | 19.0 % | 35.6 % |
+| Tin | 28.2 % | 51.0 % |
+
+  About 4.4 points of every entry come from the air and the veto; the rest matches the target-only table in D-04.
+
+**Rationale (our words):** _______________
+
+**Decided by / date:** Proposed 2026-10-06, pending team confirmation
+
+**Revisit if:** BL4S confirms a different veto thickness or position, or the target size; or if soft-photon conversion matters enough to need an energy-dependent cross-section.
+
+---
+
 ## Questions to send to the BL4S team
 
 Email: bl4s.team@cern.ch. One email with all questions, sent by the coach.
@@ -532,7 +577,8 @@ Email: bl4s.team@cern.ch. One email with all questions, sent by the coach.
 1. Which lead-glass type are the 16 blocks (e.g. SF57 from OPAL)? Are the Molière radius and per-block noise known?
 2. Can the array be mounted at an angle to the beam (about 10–20°), and how close to the beam axis is allowed?
 3. Is a dipole magnet realistically available to sweep the beam away from the array?
-4. Are thin carbon and copper targets available, or must teams supply them?
+4. Are thin carbon, copper and tin targets available (about 5 × 5 cm), or must teams supply them?
+5. How thick is the charged-veto scintillator paddle that would sit in front of the lead-glass array (we assume 1 cm)? What is the beam-spot size at the target?
 
 ## References
 

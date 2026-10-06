@@ -58,7 +58,7 @@ def test_same_seed_is_reproducible():
 
 def test_beam_spot_is_gaussian_with_configured_width():
     n = 200_000
-    v = sample_vertices(n, np.random.default_rng(SEED), 1.0, 15.32, spot_sigma_cm=0.5)
+    v = sample_vertices(n, np.random.default_rng(SEED), 1.0, 15.32, spot_sigma_cm=0.5, half_width_cm=2.5)
     for axis in (0, 1):
         assert abs(v[:, axis].mean()) < 5 * 0.5 / np.sqrt(n)
         assert abs(v[:, axis].std() - 0.5) < 0.005
@@ -70,10 +70,16 @@ def test_depth_follows_beam_attenuation():
     A thick target (t = 2λ) makes the exponential shape easy to see.
     """
     lam, t = 10.0, 20.0
-    v = sample_vertices(100_000, np.random.default_rng(SEED), t, lam, 0.5)
+    v = sample_vertices(100_000, np.random.default_rng(SEED), t, lam, 0.5, 2.5)
     depth = v[:, 2] + 0.5 * t
     cdf = lambda s: np.expm1(-s / lam) / np.expm1(-t / lam)
     assert stats.kstest(depth, cdf).pvalue > 0.01
+
+
+def test_vertices_stay_inside_target_face():
+    """A spot much wider than the target is clipped to the face by redrawing."""
+    v = sample_vertices(50_000, np.random.default_rng(SEED), 1.0, 15.32, spot_sigma_cm=3.0, half_width_cm=2.5)
+    assert np.all(np.abs(v[:, :2]) <= 2.5)
 
 
 # --- toy physics spectrum ---------------------------------------------------------

@@ -151,6 +151,7 @@ pip install -e ".[dev]"        # add ",ml" from Phase 3 on
 pytest                                                    # run validation checks
 python scripts/check_decay.py                             # decay kinematics figure
 python scripts/check_generator.py                         # generator figure
+python scripts/check_transport.py                         # transport figure + conversion-loss table
 python scripts/simulate.py --config configs/default.yaml  # generate events
 python scripts/train.py    --config configs/default.yaml  # train and evaluate classifiers
 python scripts/figures.py                                 # rebuild every figure
@@ -164,7 +165,7 @@ Every stage must pass its checks before the next one builds on it:
 - [x] Minimum opening angle matches 2·arcsin(m/E); photon energy asymmetry is flat
 - [x] Dalitz decays (π⁰ → e⁺e⁻γ) are tagged at the PDG rate of 1.174 %
 - [x] Generator: production depth follows beam attenuation; toy spectra, beam spot and flat-mode cone match their input distributions
-- [ ] Conversion fraction matches 1 − exp(−7x / 9X₀)
+- [x] Transport: photons land where straight-line geometry predicts; path lengths add up; conversion rate matches 1 − exp(−7x/9X₀) in carbon, copper and tin
 - [ ] With smearing switched off, the reconstructed mass equals the true mass
 - [ ] Single-γ and merged-π⁰ energy spectra overlap after matching
 - [ ] Training and test scores agree (no overfitting)

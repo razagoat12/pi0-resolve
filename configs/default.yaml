@@ -22,8 +22,9 @@ pi0:                                # D-02, D-03, D-15
   flat:                             # classifier samples: uniform energy, aimed at the array
     aim_margin_rad: 0.10            # added to the angle subtended by the array half-diagonal
 
-targets:                            # D-04 (properties from PDG)
+targets:                            # D-04 (properties from PDG), D-16
   thickness_fractions_lambda_i: [0.02, 0.05]
+  transverse_size_cm: 5.0           # square face, centred on the beam
   materials:
     carbon: { density_g_cm3: 2.21, x0_cm: 19.32, lambda_i_cm: 38.83 }
     copper: { density_g_cm3: 8.96, x0_cm: 1.436, lambda_i_cm: 15.32 }
@@ -35,6 +36,11 @@ geometry:                           # D-05
   blocks_per_side: 4
   block_size_cm: 10.0
   block_depth_cm: 37.0
+
+transport:                          # D-16 (radiation lengths from PDG)
+  air_x0_cm: 30390.0                # dry air, 1 atm
+  veto_thickness_cm: 1.0            # plastic scintillator directly in front of the array
+  veto_x0_cm: 42.54                 # polyvinyltoluene
 
 detector:                           # D-07
   resolution_stochastic: 0.063      # sigma_E/E = constant + stochastic/sqrt(E)
