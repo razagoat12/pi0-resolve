@@ -35,6 +35,7 @@ This file records every choice that shapes the simulation, **before** results ex
 | D-18 | Reconstruction method and Phase 2 layout | Proposed |
 | D-19 | Calibration: W₀ and energy response | Proposed |
 | D-20 | Single-photon position correction (tried, disabled) | Proposed |
+| D-21 | Two-shower fit, and the edge-block limitation | Proposed |
 
 ---
 
@@ -679,6 +680,61 @@ Selected events fell from 40 934 to 6 195.
 The table built separately for soft (< 0.7 GeV) and hard (> 2 GeV) photons differed by only 0.31 cm RMS, so energy dependence was not the problem.
 
 **Decision:** keep the code (`reconstruction.correct_position`) and the study output, but **disable** it (`position_calibration: null`). Pair interference is handled by a two-shower fit instead (D-21).
+
+**Rationale (our words):** _______________
+
+**Decided by / date:** Proposed 2026-10-07, pending team confirmation
+
+---
+
+## D-21 · Two-shower fit, and the edge-block limitation
+
+**Status:** Proposed (2026-10-07), pending team confirmation
+
+**Question:** Can fitting two showers of known shape to all 16 blocks remove the pair interference that biases photon separations (D-19, D-20)?
+
+**Method** (`src/pi0resolve/showerfit.py`)
+- **Model:** each photon is a shower of the fixed average shape (D-17) with an energy and a shower-centre position. Six numbers per event, chosen so the predicted blocks best match the measured ones (χ², Levenberg–Marquardt, all events at once).
+- **Block uncertainty:** σ² = noise² + s²·e + (0.05·e)², with e the *predicted* block energy. Using the measured energy biased fitted energies low (Neyman bias).
+- **Three starts per event:** log-weighted positions, plain-weighted positions, and seed-block centres; the lowest χ² is kept. The χ² surface has genuine local minima: on the straight path from a wrong fit to the truth, χ² rose from about 23 to 280 before falling to 0.
+- **Limits:** shower energy at most 3× the energy measured in the whole array; shower centre at most 5 cm beyond the array edge. Without limits, about 1 fit in 5 ran away (a large shower far off the face can imitate the faint tail of a real one).
+- **Mass:** events with exactly two clusters; both fitted centres must pass the 5 cm fiducial cut (D-18). Fitted energies are used directly (the model includes edge leakage).
+
+**Validation** (`tests/test_showerfit.py`)
+- Exact recovery from noise-free model blocks.
+- Single photons above 2 GeV through the full simulation: energy ratio 1.000, position error 1.0 cm.
+- π⁰ pairs above 2.5 GeV with both photons truly inside the fiducial region: separation and energy within 2 % of the truth.
+
+**Limitation: the edge-block information limit**
+
+A photon's position *within* a block is known only from the energy it shares with neighbouring blocks. In the outer half of an edge block, the only neighbour receives about 1 % of the energy, under the 30 MeV threshold for photons of a few GeV, so it reads zero. Any position in the block then fits equally well, and every method (fit or weighting) returns the block centre. Measured with single photons:
+
+| True shower centre | Fitted − true position | Fitted / true energy |
+|---|---|---|
+| 13–14 cm | +1.0 cm | 0.99 |
+| 16–17 cm | −1.5 cm | 0.98 |
+| 18–19 cm | −3.4 cm | 0.93 |
+| 19–20 cm | −4.5 cm | 0.70 |
+
+**Every resolved π⁰ in a 4 × 4 array has at least one photon in an edge block.** Two photons form two clusters only if their seed blocks are not neighbours, and in a row of four, every non-neighbouring pair includes an edge block. Requiring both photons in the inner 2 × 2 blocks leaves zero events.
+
+**Consequence:** the reconstructed π⁰ mass depends on π⁰ energy for both methods (`studies/phase2/mass_peak.py`):
+
+| π⁰ energy | Log weighting: mass (separation ratio) | Two-shower fit: mass (separation ratio) |
+|---|---|---|
+| 1.5–2.0 GeV | 122 MeV (0.92) | 112 MeV (0.90) |
+| 2.5–3.5 GeV | 143 MeV (1.06) | 127 MeV (0.97) |
+| 3.5–5.0 GeV | 148 MeV (1.10) | 130 MeV (0.98) |
+| All energies | 135 MeV (1.00) | 124 MeV (0.95) |
+
+Gaussian core fits from the full study (`results/mass_vs_energy.csv`):
+- **Log weighting:** 124 → 152 MeV from 1.25 to 4.75 GeV, σ 20–28 MeV.
+- **Two-shower fit:** 117 → 132 MeV, σ 14–20 MeV.
+- **Toy spectrum overall:** log weighting 131.6 MeV (σ 22.1, 19 396 events); fit 123.3 MeV (σ 19.3, 9 342 events). The fit keeps fewer events because fitted edge photons fail the fiducial cut more often.
+
+Log weighting is right on average because opposite errors cancel. The fit has the smaller energy dependence (spread 18 MeV against 26 MeV) but sits low, because edge photons fall back toward block centres.
+
+**Decision:** keep both methods and report the energy-dependent peak as a **detector limitation**, not a correctable bias. A pair-level correction from simulation was considered and rejected: it would patch missing information with the simulation's assumptions. Possible design remedies (a different array shape, a lower threshold, smaller blocks) are noted as future work.
 
 **Rationale (our words):** _______________
 

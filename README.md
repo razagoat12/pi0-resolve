@@ -124,6 +124,7 @@ pi0-resolve/
 │   ├── transport.py
 XX
 │   ├── reconstruction.py
+│   ├── showerfit.py      # two-shower fit (D-21)
 │   ├── dataset.py
 │   └── ml/               # features, models, training, evaluation
 ├── tests/                # validation checks (pytest)
@@ -193,6 +194,7 @@ Results will be added here as each phase is completed. Every figure in this sect
 - **Assumed production spectra.** π⁰ energies and angles are inputs, so absolute yields are uncertain. Ratios and trends are more reliable than absolute numbers.
 - **Simplified showers.** The transverse shower model is approximate; Phase 4 measures how much conclusions depend on it.
 - **Backgrounds not modelled.** Hadronic showers, neutrons and pile-up are outside the scope of the fast simulation.
+- **Edge-block information limit.** With 10 cm blocks and a 30 MeV threshold, a photon's position inside an edge block cannot be measured: its only neighbour reads below threshold. Every resolved π⁰ in a 4 × 4 array has a photon in an edge block, so the reconstructed π⁰ mass depends on π⁰ energy for every method tried (log weighting: 122 → 148 MeV; two-shower fit: 112 → 130 MeV, from 1.5 to 5 GeV). See D-21.
 
 ## Team
 
