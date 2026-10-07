@@ -1,0 +1,14 @@
+method,auc,photon_efficiency_at_90pc_pi0_rejection,auc_overlap,auc_second_photon_lost
+width cut,0.88231,0.69452,0.90219,0.63017
+shower-fit Δχ²,0.92039,0.73887,0.92849,0.81768
+logistic regression (shape),0.90441,0.72689,0.91490,0.77131
+logistic regression (raw),0.89800,0.72411,0.90329,0.83091
+boosted trees (shape),0.94650,0.80817,0.95308,0.86304
+boosted trees (raw),0.96042,0.88086,0.96722,0.87422
+boosted trees (array),0.97572,0.94145,0.97696,0.95999
+neural network (shape),0.95538,0.85702,0.96226,0.86809
+neural network (raw),0.96171,0.88333,0.96852,0.87538
+neural network (array),0.96425,0.88314,0.96629,0.93843
+sanity: cluster energy only,0.58738,,,
+sanity: true entry position only,0.50277,,,
+sanity: raw window WITHOUT energy (should stay high),0.95135,,,

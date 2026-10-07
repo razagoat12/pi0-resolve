@@ -125,10 +125,12 @@ pi0-resolve/
 XX
 │   ├── reconstruction.py
 │   ├── showerfit.py      # two-shower fit (D-21)
+│   ├── dataset.py        # labelled cluster samples (D-22)
 │   ├── dataset.py
 │   └── ml/               # features, models, training, evaluation
 ├── tests/                # validation checks (pytest)
 ├── studies/phase2/       # reconstruction and feasibility studies, results/
+├── studies/phase3/       # classifiers and ML positions, results/
 ├── scripts/              # one entry point per stage and per paper figure
 ├── notebooks/            # exploration only, never the source of results
 ├── figures/              # generated plots
@@ -179,14 +181,21 @@ Every stage must pass its checks before the next one builds on it:
 - [ ] **Phase 0:** freeze the research question, hypotheses and decision log
 - [x] **Phase 1:** core simulation (generator → detector) passing all checks
 - [ ] **Phase 2:** feasibility study: acceptance vs *L*/*θ*, mass resolution, target conversion *(in progress: reconstruction and calibration done)*
-- [ ] **Phase 3:** classifiers: baseline cut, LR, BDT, MLP; ROC and AUC vs energy
+- [x] **Phase 3:** classifiers (width cut, shower-fit Δχ², LR, BDT, MLP; window and whole-array inputs) and ML positions *(development run at 1.5 M π⁰)*
 - [ ] **Phase 4:** robustness: alternative shower models, gain errors, noise
 - [ ] **Phase 5:** write-up, physicist feedback, submission to a student research journal
 - [ ] *Stretch:* Geant4 cross-check of shower shapes and π⁰ production
 
 ## Results
 
-Results will be added here as each phase is completed. Every figure in this section will be reproducible with `scripts/figures.py`.
+Development-run results (toy π⁰ spectrum; numbers will change when HARP-based spectra replace it and Phase 4 tests the assumptions). Details and history: `docs/decisions.md`; figures in `studies/*/results/`.
+
+| Question | Result so far |
+|---|---|
+| **Q1 · π⁰ reconstruction** | Peak rebuilt (log weighting 131.6 MeV, σ 22 MeV, toy spectrum). The peak depends on π⁰ energy because every resolved π⁰ in a 4 × 4 array has a photon in an edge block (D-21). |
+| **Q2 · Targets** | π⁰ lost to photon conversion: carbon 7.5–11.5 %, copper 19–36 %, tin 28–51 % (2–5 % λ_I, including air and veto). |
+| **Q3 · Classification** | Single photon vs merged π⁰: boosted trees on all 16 blocks reach **AUC 0.976** (94 % of photons kept at 90 % π⁰ rejection), against 0.920 for the best non-ML method (shower-fit Δχ²) and 0.882 for a width cut. |
+| **Q4 · Information limit** | Separation stays at AUC ≥ 0.96 up to 5 GeV and declines slowly above 3 GeV. The same-block limit lies above the studied range at L = 1.5 m. Pairs inside one block, or straddling one block boundary, are indistinguishable even without noise. |
 
 ## Limitations
 

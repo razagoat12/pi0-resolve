@@ -173,3 +173,28 @@ def fit_pairs(clusters, blocks, cfg):
         best[better], best_chi2[better] = fitted[better], fit_chi2[better]
     params[has_two], chi2[has_two] = best, best_chi2
     return params, chi2
+
+
+# Starting offsets (cm) for the second shower when splitting one cluster in two:
+# the two showers start symmetrically about the cluster position, along u, v
+# and both diagonals.
+SPLIT_OFFSETS = ((3.0, 0.0), (0.0, 3.0), (2.1, 2.1), (2.1, -2.1))
+
+
+def merged_score(blocks, energy, position, cfg):
+    """Fit-based classifier score for single clusters (D-22).
+
+    Δχ² = χ²(best one-shower fit) - χ²(best two-shower fit). A merged π⁰ is
+    explained much better by two showers; a single photon is not. The
+    two-shower fit starts from the cluster split in half, with the halves
+    offset along each direction in SPLIT_OFFSETS; the best result is kept.
+    Returns (delta_chi2, chi2_one, chi2_two), each (N,).
+    """
+    _, chi2_one = fit_showers(blocks, np.column_stack((energy, position)), cfg)
+    chi2_two = np.full(len(energy), np.inf)
+    for du, dv in SPLIT_OFFSETS:
+        offset = np.array([du, dv])
+        start = np.column_stack((0.5 * energy, position + offset, 0.5 * energy, position - offset))
+        _, chi2 = fit_showers(blocks, start, cfg)
+        chi2_two = np.minimum(chi2_two, chi2)
+    return chi2_one - chi2_two, chi2_one, chi2_two

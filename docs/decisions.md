@@ -36,6 +36,8 @@ This file records every choice that shapes the simulation, **before** results ex
 | D-19 | Calibration: W₀ and energy response | Proposed |
 | D-20 | Single-photon position correction (tried, disabled) | Proposed |
 | D-21 | Two-shower fit, and the edge-block limitation | Proposed |
+| D-22 | Phase 3 setup: dataset, inputs, baselines, scope | Proposed |
+| D-23 | ML position estimates | Proposed |
 
 ---
 
@@ -735,6 +737,93 @@ Gaussian core fits from the full study (`results/mass_vs_energy.csv`):
 Log weighting is right on average because opposite errors cancel. The fit has the smaller energy dependence (spread 18 MeV against 26 MeV) but sits low, because edge photons fall back toward block centres.
 
 **Decision:** keep both methods and report the energy-dependent peak as a **detector limitation**, not a correctable bias. A pair-level correction from simulation was considered and rejected: it would patch missing information with the simulation's assumptions. Possible design remedies (a different array shape, a lower threshold, smaller blocks) are noted as future work.
+
+**Rationale (our words):** _______________
+
+**Decided by / date:** Proposed 2026-10-07, pending team confirmation
+
+---
+
+## D-22 · Phase 3 setup: dataset, inputs, baselines, scope
+
+**Status:** Proposed (2026-10-07), pending team confirmation
+
+**Scope:** classifier (Q3, Q4) with two non-ML baselines, then an ML position study compared with log weighting and the two-shower fit (the D-21 edge-block problem). Code: `src/pi0resolve/dataset.py`, `src/pi0resolve/ml/`; studies in `studies/phase3/`. Datasets are cached in `data/phase3/` (not committed; regenerate from the seed).
+
+**Dataset** (completes D-08 and D-09)
+- **Merged π⁰ (label 1):** flat-mode π⁰s through the full chain. Both photons reach the array unconverted and not vetoed, reconstruction finds exactly one cluster, and its log-weighted position passes the 5 cm fiducial cut (same as Phase 2).
+- **Single photon (label 0):** one photon per merged π⁰, with the same energy and production point, aimed at the energy-weighted mean entry point of the two π⁰ photons. Same selection. Energies and positions match by construction.
+- Kept per cluster: the 3 × 3 window around the seed (zero outside the array), the whole 4 × 4 array, and truth: energy, entry point, photon separation, softer-photon energy.
+- A single-cluster π⁰ can be either two overlapping photons or one photon below the seed threshold. Both fake a photon, so both count. In practice nearly all are overlaps (10 soft-photon cases in a 300 k-π⁰ test set).
+- **Yield:** merged π⁰s are rare below 2 GeV (40–120 per 0.25 GeV bin from 300 k generated π⁰) and common above 2.5 GeV (700–2 300 per bin). Low-energy bins are reported with their larger uncertainties (D-11).
+
+**Inputs** (completes D-10)
+- **Shape features:** hottest-block fraction, second/first block ratio, width, elongation, number of blocks above threshold, and log cluster energy.
+- **Raw window:** nine block energies divided by their total, plus log cluster energy.
+- Cluster energy is included because a merged cluster's appearance depends on energy. A sanity check trains on the raw window *without* energy to show the separation comes from shape.
+
+**Baselines (no training)**
+- Width cut.
+- Shower-fit Δχ²: χ²(best one-shower fit) − χ²(best two-shower fit). The two-shower fit starts from the cluster split in half and offset ±3 cm along u, v and both diagonals.
+
+**Models:** logistic regression, gradient-boosted trees (`HistGradientBoostingClassifier`) and a neural network (`MLPClassifier`), each trained on both input sets. Each model is chosen from three settings by validation AUC. Split 60 / 20 / 20; the test set is used once.
+
+**Metrics:** ROC and AUC overall; AUC per 0.5 GeV bin (Q4); photon efficiency at 90 % π⁰ rejection; AUC for overlap and soft-photon π⁰s separately. Sanity checks: energy-only and position-only classifiers (should be about 0.5).
+
+**Sample size:** development at 1.5 M generated π⁰ (about 10³ or more per bin above 2 GeV); scale up only once results are stable (D-11).
+
+**Findings while building it** (`tests/test_phase3.py`)
+- Even noise-free, two showers inside one block, or 7 cm apart either side of one block boundary, give almost the same blocks as one shower (fit Δχ² below 10). This is the Q4 information limit.
+- A pair is given away when it lights blocks in a pattern one shower cannot make, such as two diagonal neighbours.
+
+**Correction during the study:** single-cluster π⁰s below about 2.5 GeV are **not** soft-photon losses. Their photons are 27–37 cm apart and the softer one carries 450–560 MeV, but it lands at the far edge and its shower leaks off the array (the D-21 edge effect), so it forms no cluster. Merged π⁰s are therefore split by true photon separation: **overlap** (< 20 cm) and **second photon lost** (≥ 20 cm). A third input set, **the whole 4 × 4 array** (16 blocks divided by their total, plus log energy), was added so models can see traces of the lost photon outside the 3 × 3 window.
+
+**Results** (development run: 1.5 M generated π⁰, 171 377 clusters, 34 276 in the test set; `studies/phase3/results/`)
+
+| Method | AUC | Photons kept at 90 % π⁰ rejection | AUC, overlaps | AUC, second photon lost |
+|---|---|---|---|---|
+| Width cut | 0.882 | 0.70 | 0.902 | 0.630 |
+| Shower-fit Δχ² | 0.920 | 0.74 | 0.929 | 0.818 |
+| Logistic regression (shape) | 0.904 | 0.73 | 0.915 | 0.771 |
+| Boosted trees (raw window) | 0.960 | 0.88 | 0.967 | 0.874 |
+| Neural network (raw window) | 0.962 | 0.88 | 0.969 | 0.875 |
+| **Boosted trees (whole array)** | **0.976** | **0.94** | **0.977** | **0.960** |
+| Neural network (whole array) | 0.964 | 0.88 | 0.966 | 0.938 |
+
+- Machine learning beats both non-ML baselines; raw inputs beat hand-made shape features; the whole array beats the 3 × 3 window, mostly for π⁰s whose second photon was lost.
+- **Sanity checks:** true position alone AUC 0.503 (matched). Cluster energy alone 0.587: merged clusters record slightly less energy, a genuine detector effect. Raw window *without* energy 0.951, so the separation comes from shape.
+- **Q4:** with the whole array, AUC is 0.91 at 1.25 GeV, about 0.99 at 2.25–3.25 GeV, and falls slowly to 0.965 at 4.75 GeV as photons crowd into one block. At L = 1.5 m the photons are still about 8 cm apart at 5 GeV, so **the point where separation fails (E\*) lies above the 0.5–5 GeV range.** Finding it needs higher energies or a larger L.
+- Results vary by about ±0.002 AUC between runs with different train/test splits.
+
+**Rationale (our words):** _______________
+
+**Decided by / date:** Proposed 2026-10-07, pending team confirmation
+
+---
+
+## D-23 · ML position estimates
+
+**Status:** Proposed (2026-10-07), pending team confirmation
+
+**Question:** Can machine learning do better than log weighting and the two-shower fit on the edge-block problem (D-21)?
+
+**Method** (`studies/phase3/position.py`)
+- Gradient-boosted regressors on the 16 block energies (divided by their total) plus log total energy, trained on half the simulated events and tested on the other half.
+- **Single photons:** predict the shower centre (u, v).
+- **π⁰ pairs:** predict the true photon separation directly; the mass uses calibrated cluster energies with the log-weighted positions stretched about their midpoint to the predicted separation.
+- All three methods are compared on the same test events.
+
+**What ML can and cannot do:** no method recovers information the blocks do not contain. In the outer half of an edge block, log weighting and the fit put every photon at the block centre. ML instead predicts the *typical* position in that zone under the simulation's assumptions: about 2 cm too far out near 15 cm and 2 cm too far in near 20 cm. **It spreads the error more evenly; it does not remove it.** Its gains there depend on the simulated shower shape and π⁰ spectrum, which Phase 4 must test.
+
+**Results** (300 k single photons, 1.5 M π⁰; `studies/phase3/results/position*.csv`)
+- **Single photons, position RMS:** log weighting 3.56 cm, fit 3.19 cm, ML **2.24 cm**. In the inner region (|u|, |v| < 15 cm): fit **1.57 cm**, ML 1.98 cm, log weighting 2.56 cm. The fit is best where position information exists; ML is best overall because of the edges.
+- **π⁰ mass by energy** (1.25 → 4.75 GeV, the same 20 343 test events for all three):
+  - log weighting: 115 → 149 MeV;
+  - fit: 107 → 133 MeV;
+  - **ML: 124 → 135 MeV, within 131–138 MeV above 1.5 GeV.**
+- Median mass over all energies: log weighting 134.9, fit 123.1, ML 134.4 MeV.
+
+**Decision:** report all three side by side. ML is the most uniform estimate of the mass, but on this simulation's terms; the two-shower fit is the most trustworthy method where the blocks contain the information.
 
 **Rationale (our words):** _______________
 
