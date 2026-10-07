@@ -24,3 +24,7 @@ def test_default_config_matches_decisions():
     assert np.isclose(geometry["angle_rad"], np.radians(12.0), atol=1e-4)
 
     assert cfg["clustering"]["seed_threshold_gev"] == 0.100  # D-08
+
+    rec = cfg["reconstruction"]  # D-18, D-19
+    assert rec["log_weight_w0"] == 3.25
+    assert rec["fiducial_margin_cm"] == 5.0

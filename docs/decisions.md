@@ -32,6 +32,9 @@ This file records every choice that shapes the simulation, **before** results ex
 | D-15 | Generator: sampling modes and production point | Proposed |
 | D-16 | Photon transport: target size, material in the path, conversions | Proposed |
 | D-17 | Detector response details | Proposed |
+| D-18 | Reconstruction method and Phase 2 layout | Proposed |
+| D-19 | Calibration: W₀ and energy response | Proposed |
+| D-20 | Single-photon position correction (tried, disabled) | Proposed |
 
 ---
 
@@ -600,6 +603,86 @@ Pair-conversion probability: 1 − exp(−(7/9) Σ x/X₀). This is the high-ene
 **Decided by / date:** Proposed 2026-10-06, pending team confirmation
 
 **Revisit if:** BL4S confirms a different glass type; or a Geant4 shower sample becomes available to replace the parameterisation.
+
+---
+
+## D-18 · Reconstruction method and Phase 2 layout
+
+**Status:** Proposed (2026-10-06), pending team confirmation
+
+**Decision**
+- **Layout:** reconstruction code in `src/pi0resolve/reconstruction.py` (reused by later phases); Phase 2 studies, result tables and figures in `studies/phase2/`.
+- **Clusters (completes D-08):** a seed is a block of at least 100 MeV that is higher than all 8 neighbours; the cluster is the 3 × 3 window around it. A block inside two windows is **split between the clusters in proportion to the two seed energies**, so no energy is counted twice.
+- **Position:** logarithmic weighting, w = max(0, W₀ + ln(e_block / E_cluster)) (Awes et al., NIM A 311 (1992) 130), compared against plain energy weighting. The value of W₀ is set in D-19.
+- **Fiducial cut:** both reconstructed cluster centres at least **5 cm** inside the array edge (the inner 30 × 30 cm).
+- **Mass:** only events with exactly two clusters, both fiducial. Each photon direction runs from the target centre to the shower centre at depth L + D(E), using the D-17 depth formula. Using the front face instead would make every angle about 7 % too large.
+
+**Rationale (our words):** _______________
+
+**Decided by / date:** Proposed 2026-10-06, pending team confirmation
+
+---
+
+## D-19 · Calibration: W₀ and energy response
+
+**Status:** Proposed (2026-10-06), pending team confirmation
+
+**Question:** How are reconstructed positions and energies calibrated, without using the π⁰ mass we want to measure?
+
+**What happened** *(recorded so the paper can describe the method honestly)*
+1. With no calibration, the π⁰ peak sat 8 % low. A diagnosis showed cluster energies about 5 % low (the 30 MeV threshold zeroes soft halo blocks) and photon separations about 2.5 % short.
+2. Tuning W₀ on *single photons* gave W₀ = 5.25, the best single-photon position (1.35 cm RMS against 1.94 at W₀ = 4). But in π⁰ *pairs* it pulled the two showers toward each other: separations 8 % short, peak 15 % low. **Tuning on single photons is the wrong target for a pair measurement.**
+3. The first energy calibration used photons that truly landed inside the fiducial region. The analysis selects by *reconstructed* position, and positions are pulled inward, so photons truly near the edge (which leak energy) were missing from the calibration. Fixed by sampling the whole face and selecting by reconstructed position.
+4. Near the 100 MeV seed threshold, only upward fluctuations form a cluster, so the median there is biased high (+22 % at 0.1 GeV) and cannot be inverted. The calibration therefore starts at 0.3 GeV, the first bin with at least 95 % cluster efficiency.
+
+**Decision**
+- **W₀ = 3.25:** the value at which the median reconstructed photon separation in simulated π⁰ pairs equals the true separation. It is chosen from truth-level separations, **never from the π⁰ mass.**
+- **Energy calibration:** median cluster energy against true energy for simulated single photons (0.3–6 GeV, whole face, selected by reconstructed position), stored in `configs/energy_calibration.csv` and inverted by interpolation. The response is 0.93 at 0.5 GeV, 0.94 at 1 GeV and 0.97 at 4 GeV.
+- Both are produced by `studies/phase2/calibrate.py`.
+
+**Results** *(`studies/phase2/mass_peak.py`, carbon 2 % λ_I, L = 1.5 m, θ = 12°)*
+- Toy-spectrum π⁰ peak: **131.6 ± 0.3 MeV** after calibration (−2.5 %), σ = 22.1 MeV; 123.0 MeV before calibration.
+- **The peak depends on π⁰ energy:** 124 MeV at 1.25 GeV rising to 152 MeV at 4.75 GeV. The cause is photon separation (S-curve and edge effects): it is 9 % short at 1–1.5 GeV and 10 % long at 3.5–5 GeV. A single W₀ cancels this only on average.
+- At 4.75 GeV, 16 % of π⁰s have both photons on the array, but only 1 % give two clusters: **about 94 % of accepted high-energy π⁰s merge.**
+
+**Open question:** how to handle the energy-dependent separation bias. Resolved by D-20 (tried, failed) and D-21.
+
+**Rationale (our words):** _______________
+
+**Decided by / date:** Proposed 2026-10-06, pending team confirmation
+
+---
+
+## D-20 · Single-photon position correction (tried, disabled)
+
+**Status:** Proposed (2026-10-07), pending team confirmation
+
+**Question:** Can a correction table built from lone photons remove the energy-dependent separation bias found in D-19?
+
+**What was tried:** single photons fired at known points over the whole face. For each reconstructed coordinate, the median true shower coordinate was recorded (`configs/position_calibration.csv`, made by `studies/phase2/calibrate.py`) and applied to u and v separately, before the fiducial cut.
+
+**Result: it made π⁰ pairs worse.**
+
+| π⁰ energy | Separation ratio, energy calibration only | With the position table |
+|---|---|---|
+| 1.5–2.0 GeV | 0.924 | 0.736 |
+| 2.5–3.5 GeV | 1.055 | 0.825 |
+| 3.5–5.0 GeV | 1.105 | 0.949 |
+
+Selected events fell from 40 934 to 6 195.
+
+**Why**
+1. At W₀ = 3.25, reconstructed positions bunch near block centres, so the table is almost a step function. It stretches noise rather than recovering information.
+2. In pairs, the dominant distortion is **the two showers interfering**: overlapping halos in shared blocks drag each position toward the other photon. Lone photons never show this.
+3. Corrected positions were pushed outward past the fiducial cut, which preferentially removed widely separated pairs. That is a new selection bias.
+
+The table built separately for soft (< 0.7 GeV) and hard (> 2 GeV) photons differed by only 0.31 cm RMS, so energy dependence was not the problem.
+
+**Decision:** keep the code (`reconstruction.correct_position`) and the study output, but **disable** it (`position_calibration: null`). Pair interference is handled by a two-shower fit instead (D-21).
+
+**Rationale (our words):** _______________
+
+**Decided by / date:** Proposed 2026-10-07, pending team confirmation
 
 ---
 

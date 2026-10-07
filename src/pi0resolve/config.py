@@ -4,7 +4,13 @@ from pathlib import Path
 
 import yaml
 
-DEFAULT_CONFIG = Path(__file__).resolve().parents[2] / "configs" / "default.yaml"
+REPO_ROOT = Path(__file__).resolve().parents[2]
+DEFAULT_CONFIG = REPO_ROOT / "configs" / "default.yaml"
+
+
+def repo_path(relative):
+    """Absolute path for a path written relative to the repository root."""
+    return REPO_ROOT / relative
 
 
 def load_config(path=None):

@@ -63,3 +63,9 @@ shower:                             # D-06, D-17 (glass assumed SF57 until BL4S 
 clustering:                         # D-08
   seed_threshold_gev: 0.100
   window_blocks: 3
+
+reconstruction:                     # D-18
+  log_weight_w0: 3.25               # unbiased pair separation, studies/phase2/calibrate.py (D-19)
+  fiducial_margin_cm: 5.0           # reconstructed centre at least this far inside the array edge
+  energy_calibration: configs/energy_calibration.csv   # D-19; made by studies/phase2/calibrate.py
+  position_calibration: null       # D-20: single-photon S-curve table does not transfer to pairs (disabled)

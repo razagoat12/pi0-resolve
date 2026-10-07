@@ -122,11 +122,12 @@ pi0-resolve/
 │   ├── generator.py
 │   ├── decay.py
 │   ├── transport.py
-│   ├── detector.py
+XX
 │   ├── reconstruction.py
 │   ├── dataset.py
 │   └── ml/               # features, models, training, evaluation
 ├── tests/                # validation checks (pytest)
+├── studies/phase2/       # reconstruction and feasibility studies, results/
 ├── scripts/              # one entry point per stage and per paper figure
 ├── notebooks/            # exploration only, never the source of results
 ├── figures/              # generated plots
@@ -168,7 +169,7 @@ Every stage must pass its checks before the next one builds on it:
 - [x] Generator: production depth follows beam attenuation; toy spectra, beam spot and flat-mode cone match their input distributions
 - [x] Transport: photons land where straight-line geometry predicts; path lengths add up; conversion rate matches 1 − exp(−7x/9X₀) in carbon, copper and tin
 - [x] Detector: shower shape reproduces PDG containment (90 % in 1 R_M, 99 % in 3.5 R_M); energy conserved away from edges; resolution, noise, threshold and gains as configured
-- [ ] With smearing switched off, the reconstructed mass equals the true mass (Phase 2: reconstruction)
+- [x] Reconstruction: true photon energies and shower centres give exactly 134.98 MeV through the mass geometry; calibrated full-chain peak within 2 % (flat mode)
 - [ ] Single-γ and merged-π⁰ energy spectra overlap after matching
 - [ ] Training and test scores agree (no overfitting)
 
@@ -176,7 +177,7 @@ Every stage must pass its checks before the next one builds on it:
 
 - [ ] **Phase 0:** freeze the research question, hypotheses and decision log
 - [x] **Phase 1:** core simulation (generator → detector) passing all checks
-- [ ] **Phase 2:** feasibility study: acceptance vs *L*/*θ*, mass resolution, target conversion
+- [ ] **Phase 2:** feasibility study: acceptance vs *L*/*θ*, mass resolution, target conversion *(in progress: reconstruction and calibration done)*
 - [ ] **Phase 3:** classifiers: baseline cut, LR, BDT, MLP; ROC and AUC vs energy
 - [ ] **Phase 4:** robustness: alternative shower models, gain errors, noise
 - [ ] **Phase 5:** write-up, physicist feedback, submission to a student research journal
